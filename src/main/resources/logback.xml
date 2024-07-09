@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+
+    <!-- 控制台日志输出格式 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender" >
+        <encoder>
+            <pattern>%p %c#%M %d{yyyy-MM-dd HH:mm:ss} %m%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 此处为flume日志采集的配置 -->
+    <appender name="flume" class="com.teambytes.logback.flume.FlumeLogstashV1Appender">
+        <flumeAgents>192.168.179.128:44444</flumeAgents>
+        <flumeProperties>
+            connect-timeout=4000;
+            request-timeout=8000
+        </flumeProperties>
+        <batchSize>1</batchSize>
+        <reportingWindow>1</reportingWindow>
+        <additionalAvroHeaders>myHeader=myValue</additionalAvroHeaders>
+        <application>smapleapp</application>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%p %c#%M %d{yyyy-MM-dd HH:mm:ss} %m%n</pattern>
+        </layout>
+    </appender>
+
+    <!-- 控制台输出日志级别 -->
+    <root level="INFO">
+        <appender-ref ref="console" />
+    </root>
+
+    <!-- 日志级别作用的包路径 -->
+    <logger name="com.syslog.demo.flume" level="INFO" additivity="false">
+        <appender-ref ref="console" />
+        <!-- 配置完成之后一定要在此处引入flume配置组件，不然flume接收不到发送的日志 -->
+        <appender-ref ref="flume" />
+    </logger>
+
+</configuration>
